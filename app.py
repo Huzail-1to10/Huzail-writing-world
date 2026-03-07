@@ -1,5 +1,4 @@
-from flask import session
-from flask import Flask, templates/index.html, request, redirect
+from flask import Flask, request, redirect, render_template_string, session
 import sqlite3
 import os
 
@@ -156,9 +155,28 @@ body {
 """
 
 
+login_html = """
+<h2>Login</h2>
+<form method="POST">
+<input type="text" name="username" placeholder="Username"><br><br>
+<input type="password" name="password" placeholder="Password"><br><br>
+<button type="submit">Login</button>
+</form>
+"""
 
+edit_html = """
+<h2>Edit Post</h2>
 
+<form method="POST">
 
+<input type="text" name="title" value="{{post[0]}}"><br><br>
+
+<textarea name="content">{{post[1]}}</textarea><br><br>
+
+<button type="submit">Update</button>
+
+</form>
+"""
 
 
 
@@ -231,6 +249,12 @@ def logout():
 
 @app.route("/delete/<int:id>")
 def delete(id):
+  
+     if not session.get("logged_in"):
+        return redirect("/login")
+         
+    
+    
     conn = sqlite3.connect("posts.db")
     cursor = conn.cursor()
 
@@ -244,6 +268,12 @@ def delete(id):
 
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
+    
+    if not session.get("logged_in"):
+        return redirect("/login")
+        
+    
+    
     conn = sqlite3.connect("posts.db")
     cursor = conn.cursor()
 
