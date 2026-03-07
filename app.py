@@ -29,7 +29,9 @@ FILE_NAME = "posts.txt"
 app.secret_key = "huzail_secret"
 # File se posts load karne ka function
 def load_posts():
-    conn = sqlite3.connect("posts.db")
+    import psycopg2
+
+    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
     cursor = conn.cursor()
 
     cursor.execute("SELECT id, title, content FROM posts")
@@ -51,9 +53,10 @@ def load_posts():
 # File me save karne ka function
 
 def save_post(title, content):
-    conn = sqlite3.connect("posts.db")
-    cursor = conn.cursor()
+    import psycopg2
 
+    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO posts (title, content) VALUES (?, ?)",
         (title, content)
@@ -201,9 +204,10 @@ def add():
 
 
 def init_db():
-    conn = sqlite3.connect("posts.db")
-    cursor = conn.cursor()
+    import psycopg2
 
+    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    cursor = conn.cursor()
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -253,7 +257,9 @@ def delete(id):
     if not session.get("logged_in"):
         return redirect("/login")
 
-    conn = sqlite3.connect("posts.db")
+    import psycopg2
+
+    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM posts WHERE id=?", (id,))
@@ -271,9 +277,10 @@ def edit(id):
         
     
     
-    conn = sqlite3.connect("posts.db")
-    cursor = conn.cursor()
+    import psycopg2
 
+    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    cursor = conn.cursor()
     if request.method == "POST":
         title = request.form["title"]
         content = request.form["content"]
