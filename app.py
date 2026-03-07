@@ -31,7 +31,7 @@ app.secret_key = "huzail_secret"
 def load_posts():
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true")
+    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
     cursor = conn.cursor()
 
     cursor.execute("SELECT id, title, content FROM posts")
@@ -55,7 +55,7 @@ def load_posts():
 def save_post(title, content):
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true")
+    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO posts (title, content) VALUES (?, ?)",
@@ -205,7 +205,7 @@ def add():
 def init_db():
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true")
+    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
     cursor = conn.cursor()
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS posts (
@@ -258,7 +258,7 @@ def delete(id):
 
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true")
+    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM posts WHERE id=?", (id,))
@@ -278,7 +278,7 @@ def edit(id):
     
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true")
+    conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mypassword123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
     cursor = conn.cursor()
     if request.method == "POST":
         title = request.form["title"]
