@@ -1,5 +1,5 @@
 from flask import session
-from flask import Flask, render_template_string, request, redirect
+from flask import Flask, templates/index.html, request, redirect
 import sqlite3
 import os
 
@@ -110,8 +110,7 @@ body {
     font-family: 'Playfair Display', serif;
 }
 
- <a href="/edit/{{post.id}}">Edit</a>
-<a href="/delete/{{post.id}}">Delete</a>   
+ 
     
     
 </style>
@@ -134,13 +133,15 @@ body {
     <hr>
 
     {% for post in posts %}
-        <h2>{{ post.title }}</h2>
-        <p>{{ post.content }}</p>
-        <hr>
-    {% endfor %}
-    
-    
 
+<h2>{{ post.title }}</h2>
+<p>{{ post.content }}</p>
+
+<a href="/edit/{{post.id}}">Edit</a>
+<a href="/delete/{{post.id}}" onclick="return confirm('Delete this post?')">Delete</a>
+<hr>
+
+{% endfor %}
 
 
 
