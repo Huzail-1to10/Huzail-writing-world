@@ -132,4 +132,5 @@ def add():
     save_post(title, content)
     return redirect('/')
 
-app.run(host='0.0.0.0', port=5000)
+import os
+app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
