@@ -292,7 +292,7 @@ def edit(id):
         conn.close()
         return redirect("/")
 
-    cursor.execute("SELECT title, content FROM posts WHERE id=?", (id,))
+    cursor.execute("SELECT title, content FROM posts WHERE id=%s", (id,))
     post = cursor.fetchone()
     conn.close()
 
