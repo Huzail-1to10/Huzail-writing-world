@@ -12,18 +12,13 @@ FILE_NAME = "posts.txt"
 
 
 
-SELECT id, title, content FROM posts
-
-
-rows = cursor.fetchall()
 
 
 
 
 
-row[0] = id
-row[1] = title
-row[2] = content
+
+
 
 
 
@@ -38,18 +33,26 @@ def load_posts():
     conn = sqlite3.connect("posts.db")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT title, content FROM posts")
+    cursor.execute("SELECT id, title, content FROM posts")
     rows = cursor.fetchall()
+
+
+    row[0] = id
+    row[1] = title
+    row[2] = content
 
     conn.close()
 
     posts = []
+
     for row in rows:
         posts.append({
-    "id": row[0],
-    "title": row[1],
-    "content": row[2]
-})
+            "id": row[0],
+            "title": row[1],
+            "content": row[2]
+        })
+
+    return posts
 
     return posts
 
