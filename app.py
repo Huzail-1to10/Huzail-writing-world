@@ -58,7 +58,7 @@ def save_post(title, content):
     conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO posts (title, content) VALUES (?, ?)",
+        "INSERT INTO posts (title, content) VALUES (%s, %s)",
         (title, content)
     )
 
@@ -209,7 +209,7 @@ def init_db():
     cursor = conn.cursor()
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS posts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         title TEXT,
         content TEXT
     )
@@ -261,7 +261,7 @@ def delete(id):
     conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM posts WHERE id=?", (id,))
+    cursor.execute("DELETE FROM posts WHERE id=%s", (id,))
     conn.commit()
     conn.close()
 
@@ -285,7 +285,7 @@ def edit(id):
         content = request.form["content"]
 
         cursor.execute(
-            "UPDATE posts SET title=?, content=? WHERE id=?",
+            "UPDATE posts SET title=%s, content=%s WHERE id=%s",
             (title, content, id)
         )
         conn.commit()
