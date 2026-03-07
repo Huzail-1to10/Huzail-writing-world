@@ -31,7 +31,7 @@ app.secret_key = "huzail_secret"
 def load_posts():
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    conn = psycopg2.connect("postgresql://postgres:[YOUR-PASSWORD]@db.abcdefghijklmnopqrst.supabase.co:5432/postgres")
     cursor = conn.cursor()
 
     cursor.execute("SELECT id, title, content FROM posts")
@@ -55,7 +55,7 @@ def load_posts():
 def save_post(title, content):
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    conn = psycopg2.connect("postgresql://postgres:[YOUR-PASSWORD]@db.abcdefghijklmnopqrst.supabase.co:5432/postgres")
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO posts (title, content) VALUES (?, ?)",
@@ -64,7 +64,6 @@ def save_post(title, content):
 
     conn.commit()
     conn.close()
-
 
 html = """
 <!DOCTYPE html>
@@ -206,7 +205,7 @@ def add():
 def init_db():
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    conn = psycopg2.connect("postgresql://postgres:[YOUR-PASSWORD]@db.abcdefghijklmnopqrst.supabase.co:5432/postgres")
     cursor = conn.cursor()
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS posts (
@@ -259,7 +258,7 @@ def delete(id):
 
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    conn = psycopg2.connect("postgresql://postgres:[YOUR-PASSWORD]@db.abcdefghijklmnopqrst.supabase.co:5432/postgres")
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM posts WHERE id=?", (id,))
@@ -279,7 +278,7 @@ def edit(id):
     
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:PASSWORD@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    conn = psycopg2.connect("postgresql://postgres:[YOUR-PASSWORD]@db.abcdefghijklmnopqrst.supabase.co:5432/postgres")
     cursor = conn.cursor()
     if request.method == "POST":
         title = request.form["title"]
