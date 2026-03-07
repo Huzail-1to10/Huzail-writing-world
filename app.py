@@ -36,11 +36,6 @@ def load_posts():
     cursor.execute("SELECT id, title, content FROM posts")
     rows = cursor.fetchall()
 
-
-    row[0] = id
-    row[1] = title
-    row[2] = content
-
     conn.close()
 
     posts = []
@@ -51,8 +46,6 @@ def load_posts():
             "title": row[1],
             "content": row[2]
         })
-
-    return posts
 
     return posts
 
