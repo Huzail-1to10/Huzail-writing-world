@@ -249,12 +249,10 @@ def logout():
 
 @app.route("/delete/<int:id>")
 def delete(id):
-  
-     if not session.get("logged_in"):
+
+    if not session.get("logged_in"):
         return redirect("/login")
-         
-    
-    
+
     conn = sqlite3.connect("posts.db")
     cursor = conn.cursor()
 
@@ -263,7 +261,6 @@ def delete(id):
     conn.close()
 
     return redirect("/")
-
 
 
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
