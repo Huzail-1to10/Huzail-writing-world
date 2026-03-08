@@ -94,12 +94,18 @@ html = """
 
 
 
-button {
-    background-color: white;
-    color: black;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
+button{
+background:white;
+color:black;
+padding:10px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+background:#ddd;
 }
 
 
@@ -119,6 +125,17 @@ button {
 }
 
 
+
+.post-card {
+background:#111;
+padding:20px;
+margin-top:25px;
+border-radius:12px;
+box-shadow:0 0 10px rgba(255,255,255,0.1);
+}
+
+
+
 body {
     font-family: 'Playfair Display', serif;
 }
@@ -135,7 +152,7 @@ body {
 </head>
 <body>
 <div class="container">
-    <h1>Welcome to Huzail's Writing World 🌍</h1>
+    <h1 style="text-align:center;">Welcome to Huzail's Writing World 🌍</h1>
 
     <form action="/add" method="POST">
         <input type="text" name="title" placeholder="Title" required><br><br>
@@ -147,8 +164,10 @@ body {
 
     {% for post in posts %}
 
+<div class="post-card">
 <h2>{{ post.title }}</h2>
 <p>{{ post.content }}</p>
+</div>
 
 <div class="action-box">
 <a href="/edit/{{post.id}}">Edit</a> |
@@ -172,12 +191,35 @@ body {
 
 
 login_html = """
+<style>
+body{
+background:black;
+color:white;
+font-family: 'Playfair Display', serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.login-box{
+background:#111;
+padding:30px;
+border-radius:10px;
+text-align:center;
+}
+</style>
+
+<div class="login-box">
 <h2>Login</h2>
+
 <form method="POST">
 <input type="text" name="username" placeholder="Username"><br><br>
 <input type="password" name="password" placeholder="Password"><br><br>
 <button type="submit">Login</button>
 </form>
+
+</div>
 """
 
 edit_html = """
@@ -247,7 +289,7 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        if username == "admin" and password == "1234":
+        if username == "Huzail" and password == "huzail@2468":
             session["logged_in"] = True
             return redirect("/")
     return render_template_string(login_html)
