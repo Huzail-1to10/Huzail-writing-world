@@ -34,7 +34,7 @@ def load_posts():
     conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, title, content FROM posts")
+    cursor.execute("SELECT id, title, content, created_at FROM posts ORDER BY created_at DESC")
     rows = cursor.fetchall()
 
     conn.close()
@@ -43,9 +43,10 @@ def load_posts():
 
     for row in rows:
         posts.append({
-            "id": row[0],
-            "title": row[1],
-            "content": row[2]
+        "id": row[0],
+        "title": row[1],
+        "content": row[2],
+        "time": row[3]
         })
 
     return posts
@@ -167,6 +168,7 @@ body {
 <div class="post-card">
 <h2>{{ post.title }}</h2>
 <p>{{ post.content }}</p>
+<small>Posted on {{ post.time }}</small>
 </div>
 
 <div class="action-box">
