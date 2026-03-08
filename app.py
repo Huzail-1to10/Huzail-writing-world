@@ -46,7 +46,7 @@ def load_posts():
         "id": row[0],
         "title": row[1],
         "content": row[2],
-        "time": row[3]
+        "time": row[3].strftime("%d %b %Y • %I:%M %p")
         })
 
     return posts
