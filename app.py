@@ -103,8 +103,20 @@ button {
 }
 
 
+.action-box {
+    display: inline-block;
+    border: 2px solid black;
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
 
-
+.action-box a {
+    text-decoration: none;
+    color: blue;
+    margin: 0 5px;
+    font-weight: bold;
+}
 
 
 body {
@@ -138,8 +150,10 @@ body {
 <h2>{{ post.title }}</h2>
 <p>{{ post.content }}</p>
 
-<a href="/edit/{{post.id}}">Edit</a>
+<div class="action-box">
+<a href="/edit/{{post.id}}">Edit</a> |
 <a href="/delete/{{post.id}}" onclick="return confirm('Delete this post?')">Delete</a>
+</div>
 <hr>
 
 {% endfor %}
