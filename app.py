@@ -34,7 +34,7 @@ def load_posts():
     conn = psycopg2.connect("postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, title, content, created_at FROM posts ORDER BY created_at DESC")
+    cursor.execute("SELECT id, title, content, likes ,created_at FROM posts ORDER BY created_at DESC")
     rows = cursor.fetchall()
 
     conn.close()
