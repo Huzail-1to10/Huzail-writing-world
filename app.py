@@ -160,17 +160,9 @@ body {
         <textarea name="content" placeholder="Write here..." required></textarea><br><br>
         <button type="submit">Post</button>
     </form>
+<hr>
 
-<form action="/comment/{{post.id}}" method="POST">
-<input type="text" name="comment" placeholder="Write a comment">
-<button type="submit">Post</button>
-</form>
-
-
-
-    <hr>
-
-    {% for post in posts %}
+{% for post in posts %}
 
 <div class="post-card">
 <h2>{{ post.title }}</h2>
@@ -182,7 +174,10 @@ body {
 <button>Like</button>
 </a>
 
-
+<form action="/comment/{{post.id}}" method="POST">
+<input type="text" name="comment" placeholder="Write a comment">
+<button type="submit">Comment</button>
+</form>
 
 
 </div>
