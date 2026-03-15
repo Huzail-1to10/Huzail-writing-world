@@ -176,19 +176,20 @@ body {
 <h2>{{ post.title }}</h2>
 <p>{{ post.content }}</p>
 <small>Posted on {{ post.time }}</small>
-</div>
-
-<div class="action-box">
-<a href="/edit/{{post.id}}">Edit</a> |
-<a href="/delete/{{post.id}}" onclick="return confirm('Delete this post?')">Delete</a>
-
-
-
 <p>❤️ {{ post.likes }}</p>
 
 <a href="/like/{{post.id}}">
 <button>Like</button>
 </a>
+
+
+
+
+</div>
+
+<div class="action-box">
+<a href="/edit/{{post.id}}">Edit</a> |
+<a href="/delete/{{post.id}}" onclick="return confirm('Delete this post?')">Delete</a>
 </div>
 
 <hr>
