@@ -161,6 +161,13 @@ body {
         <button type="submit">Post</button>
     </form>
 
+<form action="/comment/{{post.id}}" method="POST">
+<input type="text" name="comment" placeholder="Write a comment">
+<button type="submit">Post</button>
+</form>
+
+
+
     <hr>
 
     {% for post in posts %}
@@ -174,7 +181,16 @@ body {
 <div class="action-box">
 <a href="/edit/{{post.id}}">Edit</a> |
 <a href="/delete/{{post.id}}" onclick="return confirm('Delete this post?')">Delete</a>
+
+
+
+<p>❤️ {{ post.likes }}</p>
+
+<a href="/like/{{post.id}}">
+<button>Like</button>
+</a>
 </div>
+
 <hr>
 
 {% endfor %}
@@ -355,6 +371,40 @@ def edit(id):
     conn.close()
 
     return render_template_string(edit_html, post=post, id=id)
+
+
+
+@app.route("/like/<int:id>")
+def like_post(id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE posts SET likes = likes + 1 WHERE id=%s", (id,))
+    
+    conn.commit()
+    conn.close()
+
+    return redirect("/")
+
+@app.route("/comment/<int:id>", methods=["POST"])
+def add_comment(id):
+    comment = request.form["comment"]
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "INSERT INTO comments (post_id, comment) VALUES (%s,%s)",
+        (id, comment)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/")
+
+
+
 
 
 
