@@ -31,7 +31,7 @@ app.secret_key = "huzail_secret"
 def load_posts():
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
+    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
     cursor = conn.cursor()
 
     cursor.execute("SELECT id, title, content, likes ,created_at FROM posts ORDER BY created_at DESC")
@@ -57,7 +57,7 @@ def load_posts():
 def save_post(title, content):
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
+    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO posts (title, content) VALUES (%s, %s)",
@@ -276,13 +276,19 @@ def add():
 def init_db():
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
+    conn = psycopg2.connect(
+        "postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres"
+    )
+
     cursor = conn.cursor()
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS posts (
         id SERIAL PRIMARY KEY,
         title TEXT,
-        content TEXT
+        content TEXT,
+        likes INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
 
@@ -329,7 +335,7 @@ def delete(id):
 
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
+    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM posts WHERE id=%s", (id,))
@@ -349,7 +355,7 @@ def edit(id):
     
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres")
+    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
     cursor = conn.cursor()
     if request.method == "POST":
         title = request.form["title"]
