@@ -304,7 +304,7 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        if username == "Huzail" and password == "huzail@2468":
+        if username == "Huzail" and password == "mahiru shiina":
             session["logged_in"] = True
             return redirect("/")
     return render_template_string(login_html)
