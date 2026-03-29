@@ -3,24 +3,10 @@ import sqlite3
 import os
 
 
-app.secret_key = "supersecretkey"
-
 
 app = Flask(__name__)
-
+app.secret_key = "supersecretkey"
 FILE_NAME = "posts.txt"
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
