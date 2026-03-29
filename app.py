@@ -3,6 +3,7 @@ import sqlite3
 import os
 
 
+app.secret_key = "supersecretkey"
 
 
 app = Flask(__name__)
@@ -303,31 +304,75 @@ def init_db():
 
 
 
+import bcrypt
+
+@app.route("/signup", methods=["POST"])
+def signup():
+    username = request.form["username"]
+    password = request.form["password"]
+
+    # password hash karo
+    hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO users (username, password) VALUES (%s, %s)",
+        (username, hashed.decode('utf-8'))
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return "User created successfully"
 
 
 
 
 
-@app.route("/login", methods=["GET", "POST"])
+
+
+
+
+
+@app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
 
-        if username == "Huzail" and password == "mahirushiina":
-            session["logged_in"] = True
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT * FROM users WHERE username=%s AND password=%s",
+            (username,password)
+        )
+
+        user = cur.fetchone()
+
+        if user:
+            session["user"] = username
             return redirect("/")
-    return render_template_string(login_html)
+        else:
+            return "Wrong username or password"
+
+    return render_template("login.html")
+
+
 
 
 
 
 @app.route("/logout")
 def logout():
-    session.pop("logged_in", None)
-    return redirect("/")
+    session.pop("user", None)
+    return redirect("/login")
 
-
+@app.route("/")
+def home():
+    if "user" not in session:
+        return redirect("/login")
 
 
 
