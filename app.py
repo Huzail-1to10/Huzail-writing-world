@@ -5,7 +5,6 @@ import os
 
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
 FILE_NAME = "posts.txt"
 
 
@@ -40,6 +39,20 @@ def load_posts():
         })
 
     return posts
+
+
+
+def get_db_connection():
+    import psycopg2
+    return psycopg2.connect(
+        "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+    )
+
+
+
+
+
+
 
 # File me save karne ka function
 
@@ -247,8 +260,11 @@ edit_html = """
 
 
 
-@app.route('/')
+@app.route("/")
 def home():
+    if "user" not in session:
+        return redirect("/login")
+
     posts = load_posts()
     return render_template_string(html, posts=posts)
 
@@ -282,7 +298,22 @@ def init_db():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username TEXT UNIQUE,
+    password TEXT
+)
+""")
 
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS comments (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER,
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
     conn.commit()
     conn.close()
 
@@ -330,22 +361,16 @@ def login():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute(
-            "SELECT * FROM users WHERE username=%s AND password=%s",
-            (username,password)
-        )
-
+        cur.execute("SELECT password FROM users WHERE username=%s", (username,))
         user = cur.fetchone()
 
-        if user:
+        if user and bcrypt.checkpw(password.encode('utf-8'), user[0].encode('utf-8')):
             session["user"] = username
             return redirect("/")
         else:
             return "Wrong username or password"
 
-    return render_template("login.html")
-
-
+    return render_template_string(login_html)
 
 
 
@@ -355,17 +380,13 @@ def logout():
     session.pop("user", None)
     return redirect("/login")
 
-@app.route("/")
-def home():
-    if "user" not in session:
-        return redirect("/login")
 
 
 
 @app.route("/delete/<int:id>")
 def delete(id):
 
-    if not session.get("logged_in"):
+    if not session.get("user"):
         return redirect("/login")
 
     import psycopg2
@@ -385,7 +406,7 @@ def delete(id):
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
     
-    if not session.get("logged_in"):
+    if not session.get("user"):
         return redirect("/login")
         
     
@@ -418,7 +439,7 @@ def edit(id):
 
 @app.route("/like/<int:id>")
 def like_post(id):
-    conn = get_connection()
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("UPDATE posts SET likes = likes + 1 WHERE id=%s", (id,))
@@ -432,7 +453,7 @@ def like_post(id):
 def add_comment(id):
     comment = request.form["comment"]
 
-    conn = get_connection()
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute(
