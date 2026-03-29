@@ -31,7 +31,9 @@ app.secret_key = "huzail_secret"
 def load_posts():
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    conn = psycopg2.connect(
+    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+    )
     cursor = conn.cursor()
 
     cursor.execute("SELECT id, title, content, likes ,created_at FROM posts ORDER BY created_at DESC")
@@ -57,7 +59,9 @@ def load_posts():
 def save_post(title, content):
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    conn = psycopg2.connect(
+    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+    )
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO posts (title, content) VALUES (%s, %s)",
@@ -277,7 +281,7 @@ def init_db():
     import psycopg2
 
     conn = psycopg2.connect(
-        "postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres"
+    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
     )
 
     cursor = conn.cursor()
@@ -310,7 +314,7 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        if username == "Huzail" and password == "mahiru shiina":
+        if username == "Huzail" and password == "mahirushiina":
             session["logged_in"] = True
             return redirect("/")
     return render_template_string(login_html)
@@ -335,7 +339,9 @@ def delete(id):
 
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    conn = psycopg2.connect(
+    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+    )
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM posts WHERE id=%s", (id,))
@@ -355,7 +361,9 @@ def edit(id):
     
     import psycopg2
 
-    conn = psycopg2.connect("postgresql://postgres:mahiroshina123@db.fpgvnphpztlgejfkddtf.supabase.co:5432/postgres")
+    conn = psycopg2.connect(
+    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+    )
     cursor = conn.cursor()
     if request.method == "POST":
         title = request.form["title"]
