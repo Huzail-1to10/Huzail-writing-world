@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect, render_template_string, session
 import sqlite3
 import os
-
+import psycopg2
 
 
 app = Flask(__name__)
@@ -15,8 +15,6 @@ FILE_NAME = "posts.txt"
 app.secret_key = "huzail_secret"
 # File se posts load karne ka function
 def load_posts():
-    import psycopg2
-
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
     )
@@ -43,7 +41,6 @@ def load_posts():
 
 
 def get_db_connection():
-    import psycopg2
     return psycopg2.connect(
         "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
     )
@@ -57,7 +54,6 @@ def get_db_connection():
 # File me save karne ka function
 
 def save_post(title, content):
-    import psycopg2
 
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
@@ -237,9 +233,54 @@ text-align:center;
 <input type="password" name="password" placeholder="Password"><br><br>
 <button type="submit">Login</button>
 </form>
-
+<br>
+<a href="/signup">Create new account</a>
 </div>
 """
+
+
+signup_html = """
+<style>
+body{
+background:black;
+color:white;
+font-family: 'Playfair Display', serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.login-box{
+background:#111;
+padding:30px;
+border-radius:10px;
+text-align:center;
+}
+</style>
+
+<div class="login-box">
+<h2>Signup</h2>
+
+<form method="POST">
+<input type="text" name="username" placeholder="Username"><br><br>
+<input type="password" name="password" placeholder="Password"><br><br>
+<button type="submit">Create Account</button>
+</form>
+
+<br>
+<a href="/login">Login</a>
+</div>
+"""
+
+
+
+
+
+
+
+
+
 
 edit_html = """
 <h2>Edit Post</h2>
@@ -281,7 +322,6 @@ def add():
 
 
 def init_db():
-    import psycopg2
 
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
@@ -324,24 +364,27 @@ CREATE TABLE IF NOT EXISTS comments (
 import bcrypt
 
 @app.route("/signup", methods=["POST"])
+@app.route("/signup", methods=["GET","POST"])
 def signup():
-    username = request.form["username"]
-    password = request.form["password"]
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
 
-    # password hash karo
-    hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO users (username, password) VALUES (%s, %s)",
-        (username, hashed.decode('utf-8'))
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO users (username, password) VALUES (%s, %s)",
+            (username, hashed.decode('utf-8'))
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
 
-    return "User created successfully"
+        return redirect("/login")
+
+    return render_template_string(signup_html)
 
 
 
@@ -389,8 +432,6 @@ def delete(id):
     if not session.get("user"):
         return redirect("/login")
 
-    import psycopg2
-
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
     )
@@ -409,10 +450,6 @@ def edit(id):
     if not session.get("user"):
         return redirect("/login")
         
-    
-    
-    import psycopg2
-
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
     )
@@ -436,31 +473,32 @@ def edit(id):
     return render_template_string(edit_html, post=post, id=id)
 
 
-
 @app.route("/like/<int:id>")
 def like_post(id):
+    if not session.get("user"):
+        return redirect("/login")
+
     conn = get_db_connection()
     cursor = conn.cursor()
-
     cursor.execute("UPDATE posts SET likes = likes + 1 WHERE id=%s", (id,))
-    
     conn.commit()
     conn.close()
-
     return redirect("/")
+
 
 @app.route("/comment/<int:id>", methods=["POST"])
 def add_comment(id):
+    if not session.get("user"):
+        return redirect("/login")
+
     comment = request.form["comment"]
 
     conn = get_db_connection()
     cursor = conn.cursor()
-
     cursor.execute(
         "INSERT INTO comments (post_id, comment) VALUES (%s,%s)",
         (id, comment)
     )
-
     conn.commit()
     conn.close()
 
