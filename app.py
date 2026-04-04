@@ -427,7 +427,7 @@ def logout():
 def delete(id):
 
     if session.get("user") != "huzail":
-    return "Only admin can do this 😎"
+        return "Only admin can do this 😎"
 
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
@@ -445,7 +445,7 @@ def delete(id):
 def edit(id):
     
     if session.get("user") != "huzail":
-    return "Only admin can do this 😎"
+        return "Only admin can do this 😎"
         
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
