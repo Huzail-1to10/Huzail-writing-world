@@ -303,11 +303,8 @@ edit_html = """
 
 @app.route("/")
 def home():
-    if "user" not in session:
-        return redirect("/login")
-
     posts = load_posts()
-    return render_template_string(html, posts=posts)
+    return render_template_string(html, posts=posts, user=session.get("user"))
 
 @app.route('/add', methods=['POST'])
 def add():
@@ -429,8 +426,8 @@ def logout():
 @app.route("/delete/<int:id>")
 def delete(id):
 
-    if not session.get("user"):
-        return redirect("/login")
+    if session.get("user") != "huzail":
+    return "Only admin can do this 😎"
 
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
@@ -447,8 +444,8 @@ def delete(id):
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
     
-    if not session.get("user"):
-        return redirect("/login")
+    if session.get("user") != "huzail":
+    return "Only admin can do this 😎"
         
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
