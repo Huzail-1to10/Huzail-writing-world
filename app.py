@@ -5,6 +5,7 @@ import psycopg2
 
 
 app = Flask(__name__)
+app.secret_key = "supersecretkey123"
 FILE_NAME = "posts.txt"
 
 
@@ -126,7 +127,27 @@ background:#ddd;
     font-weight: bold;
 }
 
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
 
+.settings-btn{
+    font-size:28px;
+    text-decoration:none;
+    background:#111;
+    padding:10px 16px;
+    border-radius:12px;
+    color:white;
+    transition:0.3s;
+}
+
+.settings-btn:hover{
+    background:#333;
+    transform:rotate(30deg);
+}
 
 .post-card {
 background:#111;
@@ -154,7 +175,11 @@ body {
 </head>
 <body>
 <div class="container">
-    <h1 style="text-align:center;">Welcome to Huzail's Writing World 🌍</h1>
+    <div class="header">
+    <h1>Welcome to Huzail's Writing World 🌍</h1>
+
+    <a href="/settings" class="settings-btn">⚙️</a>
+</div>
 
     <form action="/add" method="POST">
         <input type="text" name="title" placeholder="Title" required><br><br>
@@ -340,7 +365,24 @@ def add():
     return redirect('/')
 
 
+@app.route("/settings")
+def settings():
+    user = session.get("user")
 
+    return render_template_string("""
+    <h1>Settings ⚙️</h1>
+
+    {% if user %}
+        <p>Logged in as: <b>{{user}}</b></p>
+        <a href="/logout">Logout</a>
+    {% else %}
+        <a href="/login">Login</a><br><br>
+        <a href="/signup">Create New Account</a>
+    {% endif %}
+
+    <br><br>
+    <a href="/">⬅ Back</a>
+    """, user=user)
 
 
 
