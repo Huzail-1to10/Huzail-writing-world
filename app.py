@@ -174,6 +174,9 @@ body {
 <a href="/like/{{post.id}}">
 <button>Like</button>
 </a>
+<a href="/post/{{post[0]}}">
+    <button>Open Post 💬</button>
+</a>
 
 <form action="/comment/{{post.id}}" method="POST">
 <input type="text" name="comment" placeholder="Write a comment">
@@ -297,7 +300,30 @@ edit_html = """
 """
 
 
+post_page_html = """
+<h1>{{post[1]}}</h1>
+<p>{{post[2]}}</p>
 
+<hr>
+<h2>Comments 💬</h2>
+
+{% for c in comments %}
+    <p><b>{{c[0]}}</b>: {{c[1]}}</p>
+{% endfor %}
+
+<hr>
+
+{% if session.get("user") %}
+<form action="/comment/{{post[0]}}" method="POST">
+    <input name="comment" placeholder="Write comment">
+    <button>Post Comment</button>
+</form>
+{% else %}
+<p>Login to comment 🙂</p>
+{% endif %}
+
+<a href="/">⬅ Back Home</a>
+"""
 
 
 
@@ -349,6 +375,14 @@ CREATE TABLE IF NOT EXISTS comments (
     post_id INTEGER,
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS comments (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER,
+    username TEXT,
+    comment TEXT
 )
 """)
     conn.commit()
@@ -513,10 +547,44 @@ def add_comment(id):
     return redirect("/")
 
 
+@app.route("/post/<int:post_id>")
+def view_post(post_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # get post
+    cur.execute("SELECT * FROM posts WHERE id=%s", (post_id,))
+    post = cur.fetchone()
+
+    # get comments of this post
+    cur.execute("SELECT username, comment FROM comments WHERE post_id=%s", (post_id,))
+    comments = cur.fetchall()
+
+    conn.close()
+
+    return render_template_string(post_page_html, post=post, comments=comments)
 
 
+@app.route("/comment/<int:post_id>", methods=["POST"])
+def add_comment(post_id):
+    if "user" not in session:
+        return redirect("/login")
 
+    comment = request.form["comment"]
+    username = session["user"]
 
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO comments (post_id, username, comment) VALUES (%s,%s,%s)",
+        (post_id, username, comment)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect(f"/post/{post_id}")
 
 
 
