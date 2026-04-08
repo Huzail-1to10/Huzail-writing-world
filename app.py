@@ -406,7 +406,13 @@ def login():
 
         if user and bcrypt.checkpw(password.encode('utf-8'), user[0].encode('utf-8')):
             session["user"] = username
-            return redirect("/")
+            
+    # ⭐ ADMIN CHECK ADD KARO
+            
+            if username == "huzail":
+                session["is_admin"] = True
+    
+    return redirect("/")
         else:
             return "Wrong username or password"
 
@@ -417,7 +423,7 @@ def login():
 
 @app.route("/logout")
 def logout():
-    session.pop("user", None)
+    session.clear() # sab session delete
     return redirect("/login")
 
 
@@ -426,7 +432,12 @@ def logout():
 @app.route("/delete/<int:id>")
 def delete(id):
 
-    if session.get("user") != "huzail":
+    # Login check
+    if "user" not in session:
+        return redirect("/login")
+
+    # ⭐ ADMIN CHECK
+    if not session.get("is_admin"):
         return "Only admin can do this 😎"
 
     conn = psycopg2.connect(
@@ -444,9 +455,9 @@ def delete(id):
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
     
-    if session.get("user") != "huzail":
+    if not session.get("is_admin"):
         return "Only admin can do this 😎"
-        
+
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
     )
