@@ -566,7 +566,7 @@ def view_post(post_id):
 
 
 @app.route("/comment/<int:post_id>", methods=["POST"])
-def add_comment(post_id):
+def add_comment_post(post_id):
     if "user" not in session:
         return redirect("/login")
 
