@@ -360,7 +360,6 @@ CREATE TABLE IF NOT EXISTS comments (
 
 import bcrypt
 
-@app.route("/signup", methods=["POST"])
 @app.route("/signup", methods=["GET","POST"])
 def signup():
     if request.method == "POST":
@@ -403,7 +402,8 @@ def login():
 
         cur.execute("SELECT password FROM users WHERE username=%s", (username,))
         user = cur.fetchone()
-
+        conn.close()
+        
         if user and bcrypt.checkpw(password.encode('utf-8'), user[0].encode('utf-8')):
             session["user"] = username
             
@@ -412,7 +412,7 @@ def login():
             if username == "huzail":
                 session["is_admin"] = True
     
-    return redirect("/")
+            return redirect("/")
         else:
             return "Wrong username or password"
 
