@@ -481,7 +481,7 @@ def login():
         conn.close()
         
         if user and bcrypt.checkpw(password.encode('utf-8'), user[0].encode('utf-8')):
-            session["user"] = username
+            session["username"] = username
             
     # ⭐ ADMIN CHECK ADD KARO
             
@@ -628,8 +628,37 @@ def add_comment_post(post_id):
 
     return redirect(f"/post/{post_id}")
 
+def check_profile(username):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute("SELECT * FROM profiles WHERE username=%s", (username,))
+    profile = cur.fetchone()
+    
+    conn.close()
+    
+    if profile:
+        return True
+    else:
+        return False
 
 
+
+
+
+@app.route("/settings")
+def settings():
+
+    if "username" not in session:
+        return render_template("settings_logged_out.html")
+
+    username = session["username"]
+    profile_exists = check_profile(username)
+
+    if profile_exists:
+        return render_template("settings_profile_done.html", username=username)
+    else:
+        return render_template("settings_logged_in.html", username=username)
 
 import os
 init_db()
