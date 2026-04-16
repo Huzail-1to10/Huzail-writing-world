@@ -355,7 +355,7 @@ post_page_html = """
 @app.route("/")
 def home():
     posts = load_posts()
-    return render_template_string(html, posts=posts, user=session.get("user"))
+    return render_template_string(html, posts=posts, user=session.get("username"))
 
 @app.route('/add', methods=['POST'])
 def add():
@@ -492,7 +492,7 @@ def logout():
 def delete(id):
 
     # Login check
-    if "user" not in session:
+    if "username" not in session:
         return redirect("/login")
 
     # ⭐ ADMIN CHECK
@@ -513,7 +513,9 @@ def delete(id):
 
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit(id):
-    
+    if "username" not in session:
+        return redirect("/login")
+        
     if not session.get("is_admin"):
         return "Only admin can do this 😎"
 
@@ -542,7 +544,7 @@ def edit(id):
 
 @app.route("/like/<int:id>")
 def like_post(id):
-    if not session.get("user"):
+    if not session.get("username"):
         return redirect("/login")
 
     conn = get_db_connection()
@@ -552,24 +554,6 @@ def like_post(id):
     conn.close()
     return redirect("/")
 
-
-@app.route("/comment/<int:id>", methods=["POST"])
-def add_comment(id):
-    if not session.get("user"):
-        return redirect("/login")
-
-    comment = request.form["comment"]
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO comments (post_id, comment) VALUES (%s,%s)",
-        (id, comment)
-    )
-    conn.commit()
-    conn.close()
-
-    return redirect("/")
 
 
 @app.route("/post/<int:post_id>")
@@ -592,11 +576,11 @@ def view_post(post_id):
 
 @app.route("/comment/<int:post_id>", methods=["POST"])
 def add_comment_post(post_id):
-    if "user" not in session:
+    if "username" not in session:
         return redirect("/login")
 
     comment = request.form["comment"]
-    username = session["user"]
+    username = session["username"]
 
     conn = get_db_connection()
     cur = conn.cursor()
