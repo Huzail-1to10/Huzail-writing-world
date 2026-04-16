@@ -365,24 +365,7 @@ def add():
     return redirect('/')
 
 
-@app.route("/settings")
-def settings():
-    user = session.get("user")
 
-    return render_template_string("""
-    <h1>Settings ⚙️</h1>
-
-    {% if user %}
-        <p>Logged in as: <b>{{user}}</b></p>
-        <a href="/logout">Logout</a>
-    {% else %}
-        <a href="/login">Login</a><br><br>
-        <a href="/signup">Create New Account</a>
-    {% endif %}
-
-    <br><br>
-    <a href="/">⬅ Back</a>
-    """, user=user)
 
 
 
@@ -643,22 +626,53 @@ def check_profile(username):
         return False
 
 
-
-
-
 @app.route("/settings")
 def settings():
 
-    if "username" not in session:
-        return render_template("settings_logged_out.html")
+    user = session.get("username")   # <-- ek hi session key use karo
 
-    username = session["username"]
-    profile_exists = check_profile(username)
+    # agar login nahi hai
+    if not user:
+        return render_template_string("""
+        <h1>Settings ⚙️</h1>
+        <a href="/login">Login</a><br><br>
+        <a href="/signup">Create New Account</a>
+        <br><br>
+        <a href="/">⬅ Back</a>
+        """)
 
+    # login hai → check profile bana hai ya nahi
+    profile_exists = check_profile(user)
+
+    # profile bana hua hai
     if profile_exists:
-        return render_template("settings_profile_done.html", username=username)
+        return render_template_string("""
+        <h1>Settings ⚙️</h1>
+        <p>Logged in as: <b>{{user}}</b></p>
+
+        <a href="/view_profile">View Profile</a><br><br>
+        <a href="/logout">Logout</a>
+
+        <br><br>
+        <a href="/">⬅ Back</a>
+        """, user=user)
+
+    # login hai but profile nahi bana
     else:
-        return render_template("settings_logged_in.html", username=username)
+        return render_template_string("""
+        <h1>Settings ⚙️</h1>
+        <p>Logged in as: <b>{{user}}</b></p>
+
+        <a href="/create_profile">Create Profile</a><br><br>
+        <a href="/logout">Logout</a>
+
+        <br><br>
+        <a href="/">⬅ Back</a>
+        """, user=user)
+
+
+
+
 
 import os
 init_db()
