@@ -220,9 +220,7 @@ body {
 {% endfor %}
 
 
-{% if session.get("role") == "admin" %}
-    <a href="/delete/{{post.id}}">Delete</a>
-{% endif %}
+
 
 
 
@@ -402,7 +400,14 @@ CREATE TABLE IF NOT EXISTS comments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
-    
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS profiles (
+    id SERIAL PRIMARY KEY,
+    username TEXT UNIQUE,
+    bio TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
     
     conn.commit()
     conn.close()
@@ -417,11 +422,14 @@ def signup():
 
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute(
+       try:
+           cur.execute(
             "INSERT INTO users (username, password,role) VALUES (%s, %s,%s)",
             (username, hashed.decode('utf-8'),"user")
-        )
-        conn.commit()
+           )
+           conn.commit()
+        except:
+            return "Username already exists"
         cur.close()
         conn.close()
 
