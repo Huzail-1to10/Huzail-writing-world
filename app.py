@@ -6,10 +6,15 @@ import bcrypt
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "devkey")
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_SAMESITE="Lax"
+)
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db_connection():
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg2.connect(DATABASE_URL,sslmode='require')
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -470,6 +475,9 @@ def signup():
         except psycopg2.errors.UniqueViolation:
             conn.rollback()
             return "Username already exists"
+        except Exception as e:
+            conn.rollback()
+            return "Signup error"
         cur.close()
         conn.close()
 
@@ -599,7 +607,9 @@ def view_post(post_id):
 @app.route("/comment/<int:post_id>", methods=["POST"])
 @login_required
 def add_comment_post(post_id):
-    comment = request.form["comment"]
+    comment = request.form["comment"].strip()
+    if not comment:
+        return redirect(f"/post/{post_id}")
     username = session["username"]
 
     conn = get_db_connection()
