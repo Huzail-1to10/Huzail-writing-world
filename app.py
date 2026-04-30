@@ -219,7 +219,7 @@ body {
 <a href="/like/{{post.id}}">
 <button>Like</button>
 </a>
-<a href="/post/{{post[0]}}">
+<a href="/post/{{post.id}}">
     <button>Open Post 💬</button>
 </a>
 
