@@ -12,7 +12,7 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax"
 )
 DATABASE_URL = os.environ.get("DATABASE_URL")
-
+print(DATABASE_URL)
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL,sslmode='require')
 def login_required(f):
