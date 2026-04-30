@@ -221,7 +221,9 @@ body {
 {% endfor %}
 
 
-
+{% if session.get("role") == "admin" %}
+    <a href="/delete/{{post.id}}">Delete</a>
+{% endif %}
 
 
 
@@ -430,8 +432,8 @@ def signup():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO users (username, password) VALUES (%s, %s)",
-            (username, hashed.decode('utf-8'))
+            "INSERT INTO users (username, password,role) VALUES (%s, %s,%s)",
+            (username, hashed.decode('utf-8'),"user")
         )
         conn.commit()
         cur.close()
@@ -459,25 +461,42 @@ def login():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute("SELECT password FROM users WHERE username=%s", (username,))
+        cur.execute("SELECT password , role FROM users WHERE username=%s", (username,))
         user = cur.fetchone()
         conn.close()
         
         if user and bcrypt.checkpw(password.encode('utf-8'), user[0].encode('utf-8')):
             session["username"] = username
-            
+            session["role"] = user[1]
     # ⭐ ADMIN CHECK ADD KARO
             
-            if username == "huzail":
+            if user["role"] == "admin":
                 session["is_admin"] = True
-    
+            else:
+                session["is_admin"] = False
             return redirect("/")
         else:
             return "Wrong username or password"
 
     return render_template_string(login_html)
 
+from functools import wraps
 
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "username" not in session:
+            return redirect("/login")
+        return f(*args, **kwargs)
+    return wrapper
+
+def admin_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if session.get("role") != "admin":
+            return "Admins only 😎"
+        return f(*args, **kwargs)
+    return wrapper
 
 
 @app.route("/logout")
@@ -489,6 +508,8 @@ def logout():
 
 
 @app.route("/delete/<int:id>")
+@login_required
+@admin_required
 def delete(id):
 
     # Login check
@@ -512,6 +533,8 @@ def delete(id):
 
 
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+@admin_required
 def edit(id):
     if "username" not in session:
         return redirect("/login")
