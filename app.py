@@ -179,7 +179,9 @@ body {
 <div class="container">
     <div class="header">
     <h1>Welcome to Huzail's Writing World 🌍</h1>
-
+    {% if session.get("username") %}
+    <a href="/logout">Logout</a>
+    {% endif %}
     <a href="/settings" class="settings-btn">⚙️</a>
 </div>
 
@@ -438,7 +440,7 @@ CREATE TABLE IF NOT EXISTS users (
     cursor.execute("""
 CREATE TABLE IF NOT EXISTS comments (
     id SERIAL PRIMARY KEY,
-    post_id INTEGER,
+    post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
     username TEXT, 
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
