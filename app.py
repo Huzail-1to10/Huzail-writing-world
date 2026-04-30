@@ -387,7 +387,7 @@ def init_db():
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username TEXT UNIQUE,
-    password TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
     role TEXT DEFAULT 'user'
 )
 """)
@@ -545,7 +545,8 @@ def view_post(post_id):
     # get post
     cur.execute("SELECT * FROM posts WHERE id=%s", (post_id,))
     post = cur.fetchone()
-
+    if not post:
+        return "Post not found"
     # get comments of this post
     cur.execute("SELECT username, comment FROM comments WHERE post_id=%s", (post_id,))
     comments = cur.fetchall()
