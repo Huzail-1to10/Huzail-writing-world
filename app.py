@@ -14,7 +14,7 @@ def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         if "username" not in session:
-            return redirect("/login")
+            return render_template_string(login_warning_html)
         return f(*args, **kwargs)
     return wrapper
 
@@ -347,7 +347,48 @@ post_page_html = """
 <a href="/">⬅ Back Home</a>
 """
 
+login_warning_html = """
+<style>
+body{
+background:black;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+font-family: 'Playfair Display', serif;
+text-align:center;
+}
 
+.box{
+background:#111;
+padding:40px;
+border-radius:15px;
+box-shadow:0 0 15px rgba(255,255,255,0.2);
+}
+
+h1{
+font-size:50px;
+margin-bottom:20px;
+}
+
+a{
+text-decoration:none;
+color:black;
+background:white;
+padding:12px 25px;
+border-radius:10px;
+font-weight:bold;
+}
+</style>
+
+<div class="box">
+<h1>🔒 Please Login</h1>
+<p>You must login before posting, liking or commenting.</p>
+<br>
+<a href="/login">Go to Login</a>
+</div>
+"""
 
 @app.route("/")
 def home():
@@ -422,7 +463,7 @@ def signup():
         cur = conn.cursor()
         try:
             cur.execute(
-             "INSERT INTO users (username, password,role) VALUES (%s, %s,%s)",
+             "INSERT INTO users (username, password_hash,role) VALUES (%s, %s,%s)",
              (username, hashed.decode('utf-8'),"user")
             )
             conn.commit()
