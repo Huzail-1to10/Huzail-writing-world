@@ -1,12 +1,10 @@
 from flask import Flask, request, redirect, render_template_string, session
 from functools import wraps
-import sqlite3
 import os
 import psycopg2
 import bcrypt
 
 app = Flask(__name__)
-FILE_NAME = "posts.txt"
 app.secret_key = "huzail_secret"
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
@@ -422,12 +420,12 @@ def signup():
 
         conn = get_db_connection()
         cur = conn.cursor()
-       try:
-           cur.execute(
-            "INSERT INTO users (username, password,role) VALUES (%s, %s,%s)",
-            (username, hashed.decode('utf-8'),"user")
-           )
-           conn.commit()
+        try:
+            cur.execute(
+             "INSERT INTO users (username, password,role) VALUES (%s, %s,%s)",
+             (username, hashed.decode('utf-8'),"user")
+            )
+            conn.commit()
         except:
             return "Username already exists"
         cur.close()
@@ -455,7 +453,7 @@ def login():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute("SELECT password , role FROM users WHERE username=%s", (username,))
+        cur.execute("SELECT password_hash , role FROM users WHERE username=%s", (username,))
         user = cur.fetchone()
         conn.close()
         
