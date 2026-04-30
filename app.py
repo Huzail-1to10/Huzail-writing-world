@@ -373,10 +373,7 @@ def add():
 
 def init_db():
 
-    conn = psycopg2.connect(
-    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
-    )
-
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -484,9 +481,7 @@ def logout():
 @login_required
 @admin_required
 def delete(id):
-    conn = psycopg2.connect(
-    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
-    )
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM posts WHERE id=%s", (id,))
@@ -500,9 +495,7 @@ def delete(id):
 @login_required
 @admin_required
 def edit(id):
-    conn = psycopg2.connect(
-    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
-    )
+    conn = get_db_connection()
     cursor = conn.cursor()
     if request.method == "POST":
         title = request.form["title"]
