@@ -6,16 +6,12 @@ import psycopg2
 import bcrypt
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey123"
 FILE_NAME = "posts.txt"
-
-
-
-
-
-
 app.secret_key = "huzail_secret"
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL)
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -32,13 +28,9 @@ def admin_required(f):
         return f(*args, **kwargs)
     return wrapper
 
-
-
 # File se posts load karne ka function
 def load_posts():
-    conn = psycopg2.connect(
-    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
-    )
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("SELECT id, title, content, likes ,created_at FROM posts ORDER BY created_at DESC")
@@ -61,24 +53,11 @@ def load_posts():
 
 
 
-def get_db_connection():
-    return psycopg2.connect(
-        "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
-    )
-
-
-
-
-
-
-
 # File me save karne ka function
 
 def save_post(title, content):
 
-    conn = psycopg2.connect(
-    "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
-    )
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO posts (title, content) VALUES (%s, %s)",
@@ -360,7 +339,7 @@ post_page_html = """
 
 <hr>
 
-{% if session.get("user") %}
+{% if session.get("username") %}
 <form action="/comment/{{post[0]}}" method="POST">
     <input name="comment" placeholder="Write comment">
     <button>Post Comment</button>
