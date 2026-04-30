@@ -5,7 +5,7 @@ import psycopg2
 import bcrypt
 
 app = Flask(__name__)
-app.secret_key = "huzail_secret"
+app.secret_key = os.environ.get("SECRET_KEY", "devkey")
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db_connection():
@@ -426,7 +426,8 @@ def signup():
              (username, hashed.decode('utf-8'),"user")
             )
             conn.commit()
-        except:
+        except psycopg2.errors.UniqueViolation:
+            conn.rollback()
             return "Username already exists"
         cur.close()
         conn.close()
@@ -637,4 +638,3 @@ def settings():
 
 
 init_db()
-app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
