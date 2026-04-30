@@ -360,6 +360,7 @@ def home():
     return render_template_string(html, posts=posts, user=session.get("username"))
 
 @app.route('/add', methods=['POST'])
+@login_required
 def add():
     title = request.form['title']
     content = request.form['content']
@@ -392,26 +393,21 @@ def init_db():
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username TEXT UNIQUE,
-    password TEXT
+    password TEXT NOT NULL,
+    role TEXT DEFAULT 'user'
 )
 """)
-
     cursor.execute("""
 CREATE TABLE IF NOT EXISTS comments (
     id SERIAL PRIMARY KEY,
     post_id INTEGER,
+    username TEXT 
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 """)
-    cursor.execute("""
-CREATE TABLE IF NOT EXISTS comments (
-    id SERIAL PRIMARY KEY,
-    post_id INTEGER,
-    username TEXT,
-    comment TEXT
-)
-""")
+    
+    
     conn.commit()
     conn.close()
 
@@ -470,7 +466,7 @@ def login():
             session["role"] = user[1]
     # ⭐ ADMIN CHECK ADD KARO
             
-            if user["role"] == "admin":
+            if user[1] == "admin":
                 session["is_admin"] = True
             else:
                 session["is_admin"] = False
@@ -511,15 +507,6 @@ def logout():
 @login_required
 @admin_required
 def delete(id):
-
-    # Login check
-    if "username" not in session:
-        return redirect("/login")
-
-    # ⭐ ADMIN CHECK
-    if not session.get("is_admin"):
-        return "Only admin can do this 😎"
-
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
     )
@@ -536,12 +523,6 @@ def delete(id):
 @login_required
 @admin_required
 def edit(id):
-    if "username" not in session:
-        return redirect("/login")
-        
-    if not session.get("is_admin"):
-        return "Only admin can do this 😎"
-
     conn = psycopg2.connect(
     "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
     )
@@ -565,11 +546,10 @@ def edit(id):
     return render_template_string(edit_html, post=post, id=id)
 
 
-@app.route("/like/<int:id>")
-def like_post(id):
-    if not session.get("username"):
-        return redirect("/login")
 
+@app.route("/like/<int:id>")
+@login_required
+def like_post(id):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE posts SET likes = likes + 1 WHERE id=%s", (id,))
@@ -598,10 +578,8 @@ def view_post(post_id):
 
 
 @app.route("/comment/<int:post_id>", methods=["POST"])
+@login_required
 def add_comment_post(post_id):
-    if "username" not in session:
-        return redirect("/login")
-
     comment = request.form["comment"]
     username = session["username"]
 
