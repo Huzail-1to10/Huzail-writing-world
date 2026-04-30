@@ -1,8 +1,9 @@
 from flask import Flask, request, redirect, render_template_string, session
+from functools import wraps
 import sqlite3
 import os
 import psycopg2
-
+import bcrypt
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey123"
@@ -14,6 +15,25 @@ FILE_NAME = "posts.txt"
 
 
 app.secret_key = "huzail_secret"
+
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "username" not in session:
+            return redirect("/login")
+        return f(*args, **kwargs)
+    return wrapper
+
+def admin_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if session.get("role") != "admin":
+            return "Admins only 😎"
+        return f(*args, **kwargs)
+    return wrapper
+
+
+
 # File se posts load karne ka function
 def load_posts():
     conn = psycopg2.connect(
@@ -401,7 +421,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS comments (
     id SERIAL PRIMARY KEY,
     post_id INTEGER,
-    username TEXT 
+    username TEXT, 
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
@@ -410,12 +430,6 @@ CREATE TABLE IF NOT EXISTS comments (
     
     conn.commit()
     conn.close()
-
-
-
-
-
-import bcrypt
 
 @app.route("/signup", methods=["GET","POST"])
 def signup():
@@ -476,23 +490,7 @@ def login():
 
     return render_template_string(login_html)
 
-from functools import wraps
 
-def login_required(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if "username" not in session:
-            return redirect("/login")
-        return f(*args, **kwargs)
-    return wrapper
-
-def admin_required(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if session.get("role") != "admin":
-            return "Admins only 😎"
-        return f(*args, **kwargs)
-    return wrapper
 
 
 @app.route("/logout")
@@ -659,6 +657,5 @@ def settings():
 
 
 
-import os
 init_db()
 app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
