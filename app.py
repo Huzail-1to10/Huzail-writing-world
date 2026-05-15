@@ -479,10 +479,9 @@ def signup():
             return "Username already exists"
         except Exception as e:
             conn.rollback()
-            return "Signup error"
+            return str(e)
         cur.close()
         conn.close()
-
         return redirect("/login")
 
     return render_template_string(signup_html)
