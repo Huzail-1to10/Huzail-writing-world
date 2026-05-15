@@ -11,10 +11,10 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,
     SESSION_COOKIE_SAMESITE="Lax"
 )
-DATABASE_URL = os.environ.get("DATABASE_URL")
-print(DATABASE_URL)
+DATABASE_URL = "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require"
+
 def get_db_connection():
-    return psycopg2.connect(DATABASE_URL,sslmode="require")
+    return psycopg2.connect(DATABASE_URL)
 def login_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
