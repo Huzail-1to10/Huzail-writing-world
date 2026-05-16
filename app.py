@@ -322,6 +322,7 @@ text-align:center;
 <form method="POST">
 <input type="text" name="username" placeholder="Username"><br><br>
 <input type="password" name="password" placeholder="Password"><br><br>
+<input type="email" name="email" placeholder="Email" required>
 <button type="submit">Create Account</button>
 </form>
 
@@ -457,9 +458,13 @@ def init_db():
     cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    username TEXT UNIQUE,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role TEXT DEFAULT 'user'
+    role TEXT DEFAULT 'user',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP ,
+    is_active BOOLEAN DEFAULT TRUE 
 )
 """)
     cursor.execute("""
@@ -487,6 +492,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 def signup():
     if request.method == "POST":
         username = request.form["username"]
+        email = request.form["email"]  
         password = request.form["password"]
 
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
@@ -494,13 +500,15 @@ def signup():
         conn = get_db_connection()
         cur = conn.cursor()
         try:
-            cur.execute(
-             "INSERT INTO users (username, password_hash,role) VALUES (%s, %s,%s)",
-             (username, hashed.decode('utf-8'),"user")
-            )
+            cur.execute("""
+INSERT INTO users (username, email, password_hash, role)
+VALUES (%s, %s, %s, %s)
+""", (username, email, hashed.decode('utf-8'), "user"))
             conn.commit()
-        except psycopg2.errors.UniqueViolation:
+        except psycopg2.errors.UniqueViolation as e:
             conn.rollback()
+            if "email" in str(e):
+                return "Email already exists"
             return "Username already exists"
         except Exception as e:
             conn.rollback()
