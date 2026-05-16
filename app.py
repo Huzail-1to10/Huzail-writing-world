@@ -232,6 +232,31 @@ body {
 
 
 </div>
+<!-- Floating Chess Button -->
+<a href="chess.html" class="chess-float">♟️</a>
+
+<style>
+.chess-float{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:60px;
+    height:60px;
+    background:#111;
+    color:white;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:28px;
+    text-decoration:none;
+    box-shadow:0 4px 10px rgba(0,0,0,0.4);
+    z-index:999;
+}
+.chess-float:hover{
+    background:#333;
+}
+</style>
 </body>
 </html>
 """
