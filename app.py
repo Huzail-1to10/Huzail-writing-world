@@ -363,7 +363,11 @@ post_page_html = """
 <h2>Comments 💬</h2>
 
 {% for c in comments %}
-    <p><b>{{c[0]}}</b>: {{c[1]}}</p>
+    <p>
+        <b>{{c[0]}}</b> • {{c[2].strftime("%d %b %Y %H:%M")}}<br>
+        {{c[1]}}
+    </p>
+    <hr>
 {% endfor %}
 
 <hr>
@@ -629,13 +633,24 @@ def view_post(post_id):
     post = cur.fetchone()
     if not post:
         return "Post not found"
-    # get comments of this post
-    cur.execute("SELECT username, comment FROM comments WHERE post_id=%s", (post_id,))
+
+    # get comments
+    cur.execute("""
+        SELECT username, comment, created_at 
+        FROM comments 
+        WHERE post_id=%s 
+        ORDER BY created_at DESC
+    """, (post_id,))
     comments = cur.fetchall()
 
     conn.close()
 
-    return render_template_string(post_page_html, post=post, comments=comments)
+    return render_template_string(
+        post_page_html,
+        post=post,
+        comments=comments,
+        session=session   # ⭐⭐⭐ MOST IMPORTANT
+    )
 
 
 @app.route("/comment/<int:post_id>", methods=["POST"])
