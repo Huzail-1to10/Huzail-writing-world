@@ -69,6 +69,33 @@ def save_post(title, content):
 
     conn.commit()
     conn.close()
+from datetime import datetime, timezone
+
+def time_ago(timestamp):
+    now = datetime.now(timezone.utc)
+    diff = now - timestamp.replace(tzinfo=timezone.utc)
+
+    seconds = diff.total_seconds()
+
+    if seconds < 60:
+        return "Just now"
+    elif seconds < 3600:
+        mins = int(seconds // 60)
+        return f"{mins} min ago"
+    elif seconds < 86400:
+        hours = int(seconds // 3600)
+        return f"{hours} hours ago"
+    elif seconds < 604800:
+        days = int(seconds // 86400)
+        return f"{days} days ago"
+    elif seconds < 2592000:
+        weeks = int(seconds // 604800)
+        return f"{weeks} weeks ago"
+    else:
+        months = int(seconds // 2592000)
+        return f"{months} months ago"
+
+
 
 html = """
 <!DOCTYPE html>
@@ -355,34 +382,106 @@ edit_html = """
 """
 
 
+
+
 post_page_html = """
+
+<style>
+body{
+    font-family: Arial;
+    margin:0;
+    background:#fafafa;
+}
+
+/* Top header */
+.topbar{
+    position:sticky;
+    top:0;
+    background:white;
+    padding:15px;
+    border-bottom:1px solid #ddd;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.close{
+    font-size:28px;
+    text-decoration:none;
+    color:black;
+}
+
+/* Post */
+.container{
+    padding:20px;
+}
+
+.comment{
+    margin-bottom:18px;
+}
+
+.meta{
+    font-size:14px;
+    color:gray;
+}
+
+form{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    background:white;
+    padding:10px;
+    border-top:1px solid #ddd;
+}
+
+input{
+    width:75%;
+    padding:10px;
+}
+
+button{
+    padding:10px 20px;
+}
+</style>
+
+
+<!-- TOP BAR -->
+<div class="topbar">
+    <div>Comments {{comment_count}}</div>
+    <a href="/" class="close">✕</a>
+</div>
+
+
+<div class="container">
+
 <h1>{{post[1]}}</h1>
 <p>{{post[2]}}</p>
 
 <hr>
-<h2>Comments 💬</h2>
 
 {% for c in comments %}
-    <p>
-        <b>{{c[0]}}</b> • {{c[2].strftime("%d %b %Y %H:%M")}}<br>
-        {{c[1]}}
-    </p>
-    <hr>
+<div class="comment">
+    <div class="meta">
+        <b>{{c[0]}}</b> • {{c[2]}}
+    </div>
+    <div>{{c[1]}}</div>
+</div>
 {% endfor %}
 
-<hr>
+</div>
+
 
 {% if session.get("username") %}
 <form action="/comment/{{post[0]}}" method="POST">
-    <input name="comment" placeholder="Write comment">
-    <button>Post Comment</button>
+    <input name="comment" placeholder="Write comment..." required>
+    <button>Send</button>
 </form>
-{% else %}
-<p>Login to comment 🙂</p>
 {% endif %}
 
-<a href="/">⬅ Back Home</a>
 """
+
 
 login_warning_html = """
 <style>
@@ -642,15 +741,25 @@ def view_post(post_id):
         ORDER BY created_at DESC
     """, (post_id,))
     comments = cur.fetchall()
+    comments_with_time = []
+    for c in comments:
+        username, comment, created_at = c
+        comments_with_time.append(
+            (username, comment, time_ago(created_at))
+        )
+
+    comment_count = len(comments_with_time)
 
     conn.close()
 
     return render_template_string(
         post_page_html,
         post=post,
-        comments=comments,
-        session=session   # ⭐⭐⭐ MOST IMPORTANT
+        comments=comments_with_time,
+        session=session,
+        comment_count=comment_count
     )
+    
 
 
 @app.route("/comment/<int:post_id>", methods=["POST"])
