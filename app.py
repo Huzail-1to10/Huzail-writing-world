@@ -20,12 +20,15 @@ def login_required(f):
     def wrapper(*args, **kwargs):
         if "username" not in session:
             return render_template_string(login_warning_html)
+        print("Role set to:", session["role"])   # verify yahan
         return f(*args, **kwargs)
     return wrapper
 
 def admin_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
+        print("Session data:", session)        # pura session dekho
+        print("Role in session:", session.get("role"))  # role specifically dekho
         if session.get("role") != "admin":
             return "Admins only 😎"
         return f(*args, **kwargs)
