@@ -11,7 +11,7 @@ app.config.update(
     SESSION_COOKIE_SECURE=False,
     SESSION_COOKIE_SAMESITE="Lax"
 )
-DATABASE_URL = "postgresql://postgres.fpgvnphpztlgejfkddtf:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require"
+DATABASE_URL = "postgresql://postgres:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require"
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
