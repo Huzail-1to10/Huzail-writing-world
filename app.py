@@ -11,7 +11,7 @@ app.config.update(
     SESSION_COOKIE_SECURE=False,
     SESSION_COOKIE_SAMESITE="Lax"
 )
-DATABASE_URL = "postgresql://postgres:mahiroshina123@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres?sslmode=require"
+DATABASE_URL = "postgresql://neondb_owner:npg_EIa59FXUGpsc@ep-cold-wave-aqj41kf4-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
