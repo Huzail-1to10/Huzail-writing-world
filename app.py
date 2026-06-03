@@ -237,6 +237,13 @@ body {
         <textarea name="content" placeholder="Write here..." required></textarea><br><br>
         <button type="submit">Post</button>
     </form>
+    <form action="/" method="GET">
+    <input type="text"
+           name="search"
+           placeholder="🔍 Search posts..."
+           style="padding:10px;width:300px;border-radius:8px;">
+    <button type="submit">Search</button>
+    </form>
 <hr>
 
 {% for post in posts %}
