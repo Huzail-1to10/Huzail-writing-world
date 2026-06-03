@@ -39,42 +39,24 @@ def load_posts():
     search = request.args.get("search")
     conn = get_db_connection()
     cursor = conn.cursor()
-    if search:
-        cur.execute(
-            """
-            SELECT id,title,content,likes,created_at
-            FROM posts
-            WHERE title ILIKE %s
-            ORDER BY created_at DESC
-            """,
-            (f"%{search}%",)
-        )
     
-    else:
-        cur.execute(
-            """
-            SELECT id,title,content,likes,created_at
-            FROM posts
-            ORDER BY created_at DESC
-            """
-        )
-    
-    rows = cursor.fetchall()
-    conn.close()
+    cursor.execute("SELECT id, title, content, likes ,created_at FROM posts ORDER BY created_at DESC")  
+    rows = cursor.fetchall()  
 
-    posts = []
+    conn.close()  
 
-    for row in rows:
-        posts.append({
-        "id": row[0],
-        "title": row[1],
-        "content": row[2],
-        "likes":row[3],   
+    posts = []  
+
+    for row in rows:  
+        posts.append({  
+        "id": row[0],  
+        "title": row[1],  
+        "content": row[2],  
+        "likes":row[3],     
         "time": row[4].strftime("%d %b %Y • %I:%M %p")
-        })
-    return render_template_string(html, posts=posts)
+        })  
 
-
+    return posts
 
 # File me save karne ka function
 
@@ -555,9 +537,47 @@ font-weight:bold;
 
 @app.route("/")
 def home():
-    posts = load_posts()
-    return render_template_string(html, posts=posts, user=session.get("username"))
 
+    search = request.args.get("search")
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if search:
+        cur.execute(
+            """
+            SELECT id,title,content,likes,created_at
+            FROM posts
+            WHERE title ILIKE %s
+            ORDER BY created_at DESC
+            """,
+            (f"%{search}%",)
+        )
+    else:
+        cur.execute(
+            """
+            SELECT id,title,content,likes,created_at
+            FROM posts
+            ORDER BY created_at DESC
+            """
+        )
+
+    rows = cur.fetchall()
+    conn.close()
+
+    posts = []
+
+    for row in rows:
+        posts.append({
+            "id": row[0],
+            "title": row[1],
+            "content": row[2],
+            "likes": row[3],
+            "time": row[4].strftime("%d %b %Y • %I:%M %p")
+        })
+
+    return render_template_string(html, posts=posts)
+    
 @app.route('/add', methods=['POST'])
 @login_required
 def add():
