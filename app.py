@@ -36,12 +36,30 @@ def admin_required(f):
 
 # File se posts load karne ka function
 def load_posts():
+    search = request.args.get("search")
     conn = get_db_connection()
     cursor = conn.cursor()
-
-    cursor.execute("SELECT id, title, content, likes ,created_at FROM posts ORDER BY created_at DESC")
+    if search:
+        cur.execute(
+            """
+            SELECT id,title,content,likes,created_at
+            FROM posts
+            WHERE title ILIKE %s
+            ORDER BY created_at DESC
+            """,
+            (f"%{search}%",)
+        )
+    
+    else:
+        cur.execute(
+            """
+            SELECT id,title,content,likes,created_at
+            FROM posts
+            ORDER BY created_at DESC
+            """
+        )
+    
     rows = cursor.fetchall()
-
     conn.close()
 
     posts = []
@@ -54,8 +72,7 @@ def load_posts():
         "likes":row[3],   
         "time": row[4].strftime("%d %b %Y • %I:%M %p")
         })
-
-    return posts
+    return render_template_string(html, posts=posts)
 
 
 
