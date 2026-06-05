@@ -918,7 +918,11 @@ def settings():
 
         <a href="/view_profile">View Profile</a><br><br>
         <a href="/logout">Logout</a>
-
+        <a href="/delete_account"
+   onclick="return confirm('Are you sure? This account will be permanently deleted.')">
+Delete Account 🗑️
+</a>
+ 
         <br><br>
         <a href="/">⬅ Back</a>
         """, user=user)
@@ -931,12 +935,47 @@ def settings():
 
         <a href="/create_profile">Create Profile</a><br><br>
         <a href="/logout">Logout</a>
+        <a href="/delete_account"
+   onclick="return confirm('Are you sure? This account will be permanently deleted.')">
+Delete Account 🗑️
+</a>
 
         <br><br>
         <a href="/">⬅ Back</a>
         """, user=user)
 
+@app.route("/delete_account", methods=["GET","POST"])
+@login_required
+def delete_account():
+    username = session["username"]
 
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # profile delete
+    cur.execute(
+        "DELETE FROM profiles WHERE username=%s",
+        (username,)
+    )
+
+    # comments delete
+    cur.execute(
+        "DELETE FROM comments WHERE username=%s",
+        (username,)
+    )
+
+    # user delete
+    cur.execute(
+        "DELETE FROM users WHERE username=%s",
+        (username,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    session.clear()
+
+    return redirect("/")
 
 
 
