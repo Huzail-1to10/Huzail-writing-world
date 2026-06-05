@@ -792,7 +792,8 @@ CREATE TABLE IF NOT EXISTS comments (
     username TEXT,
     
     comment TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER REFERENCES users(id)
 )
 """)
     cursor.execute("""
@@ -800,7 +801,10 @@ CREATE TABLE IF NOT EXISTS profiles (
     id SERIAL PRIMARY KEY,
     username TEXT UNIQUE,
     bio TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INTEGER REFERENCES users(id),
+    profile_name TEXT NOT NULL,
+    profile_image TEXT 
 )
 """)
     
