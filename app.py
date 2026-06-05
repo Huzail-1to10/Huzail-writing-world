@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, render_template_string, session
 from functools import wraps
+from werkzeug.utils import secure_filename
 import os
 import psycopg2
 import bcrypt
@@ -12,6 +13,12 @@ app.config.update(
     SESSION_COOKIE_SAMESITE="Lax"
 )
 DATABASE_URL = "postgresql://neondb_owner:npg_EIa59FXUGpsc@ep-cold-wave-aqj41kf4-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+
+UPLOAD_FOLDER = "static/uploads"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
@@ -40,7 +47,7 @@ def load_posts():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT id, title, content, likes ,created_at FROM posts ORDER BY created_at DESC")  
+    cursor.execute("SELECT id, title, content, likes ,created_at, image_url FROM posts ORDER BY created_at DESC")  
     rows = cursor.fetchall()  
 
     conn.close()  
@@ -53,7 +60,8 @@ def load_posts():
         "title": row[1],  
         "content": row[2],  
         "likes":row[3],     
-        "time": row[4].strftime("%d %b %Y • %I:%M %p")
+        "time": row[4].strftime("%d %b %Y • %I:%M %p"),
+        "image": row[5]
         })  
 
     return posts
@@ -214,9 +222,10 @@ body {
     <a href="/settings" class="settings-btn">⚙️</a>
 </div>
 
-    <form action="/add" method="POST">
+    <form action="/add" method="POST" enctype="multipart/form-data">
         <input type="text" name="title" placeholder="Title" required><br><br>
         <textarea name="content" placeholder="Write here..." required></textarea><br><br>
+        <input type="file" name="image"><br><br>
         <button type="submit">Post</button>
     </form>
     <form action="/" method="GET">
@@ -261,7 +270,12 @@ body {
 {% endfor %}
 
 
-
+{% if post.image %}
+<img src="{{post.image}}"
+     style="max-width:100%;
+            border-radius:10px;
+            margin-top:10px;">
+{% endif %} 
 
 
 
@@ -578,15 +592,46 @@ def home():
 
     return render_template_string(html, posts=posts)
     
+
 @app.route('/add', methods=['POST'])
 @login_required
 def add():
+
     title = request.form['title']
     content = request.form['content']
-    save_post(title, content)
-    return redirect('/')
 
+    image = request.files['image']
 
+    image_path = None
+
+    if image and image.filename:
+        filename = secure_filename(image.filename)
+
+        image_path = os.path.join(
+            app.config["UPLOAD_FOLDER"],
+            filename
+        )
+
+        image.save(image_path)
+
+        image_path = "/" + image_path
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        INSERT INTO posts
+        (title, content, image_url)
+        VALUES (%s,%s,%s)
+        """,
+        (title, content, image_path)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/")
 
 
 
@@ -602,7 +647,8 @@ def init_db():
         title TEXT,
         content TEXT,
         likes INTEGER DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        image_url TEXT
     )
     """)
     cursor.execute("""
