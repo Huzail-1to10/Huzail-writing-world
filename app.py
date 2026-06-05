@@ -555,7 +555,120 @@ font-weight:bold;
 <a href="/login">Go to Login</a>
 </div>
 """
+profile_html = """
 
+<style>
+body{
+    font-family:Arial, sans-serif;
+    background:white;
+    margin:0;
+}
+
+/* Top Bar */
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px;
+    font-size:28px;
+}
+
+.topbar a{
+    text-decoration:none;
+    color:black;
+}
+
+/* Profile Header */
+.profile-header{
+    display:flex;
+    align-items:center;
+    padding:20px;
+}
+
+.profile-pic{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    object-fit:cover;
+    margin-right:20px;
+}
+
+.profile-info h1{
+    margin:0;
+    font-size:38px;
+}
+
+.username{
+    color:gray;
+    font-size:18px;
+}
+
+/* Tabs */
+.tabs{
+    text-align:center;
+    margin-top:20px;
+    border-bottom:1px solid #ddd;
+}
+
+.tabs h2{
+    display:inline-block;
+    padding:10px 30px;
+    border-bottom:3px solid black;
+}
+
+/* Posts */
+.posts{
+    padding:20px;
+}
+
+.post-card{
+    background:#f5f5f5;
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:10px;
+}
+
+.post-card h3{
+    margin-top:0;
+}
+</style>
+
+
+<div class="topbar">
+    <a href="/">←</a>
+    <div>⋮</div>
+</div>
+
+
+<div class="profile-header">
+
+    <img src="{{profile_image}}" class="profile-pic">
+
+    <div class="profile-info">
+        <h1>{{profile_name}}</h1>
+        <div class="username">@{{username}}</div>
+    </div>
+
+</div>
+
+
+<div class="tabs">
+    <h2>Posts</h2>
+</div>
+
+
+<div class="posts">
+
+{% for post in posts %}
+<div class="post-card">
+    <h3>{{post.title}}</h3>
+    <p>{{post.content}}</p>
+</div>
+{% endfor %}
+
+</div>
+
+"""
 @app.route("/")
 def home():
 
@@ -676,7 +789,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS comments (
     id SERIAL PRIMARY KEY,
     post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
-    username TEXT, 
+    username TEXT,
+    
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
@@ -985,6 +1099,32 @@ def delete_account():
 
     return redirect("/")
 
+@app.route("/profile/<username>")
+def profile(username):
 
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT profile_name, profile_image FROM profiles WHERE username=%s",
+        (username,)
+    )
+    profile = cur.fetchone()
+
+    cur.execute(
+        "SELECT title, content FROM posts WHERE username=%s ORDER BY id DESC",
+        (username,)
+    )
+    posts = cur.fetchall()
+
+    conn.close()
+
+    return render_template_string(
+        profile_html,
+        profile_name=profile[0],
+        profile_image=profile[1],
+        username=username,
+        posts=posts
+    )
 
 init_db()
