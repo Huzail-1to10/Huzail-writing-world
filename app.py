@@ -72,10 +72,16 @@ def save_post(title, content):
 
     conn = get_db_connection()
     cursor = conn.cursor()
+    username = session["username"]
+    user_id = session["user_id"]  # future ke liye
+
     cursor.execute(
-        "INSERT INTO posts (title, content) VALUES (%s, %s)",
-        (title, content)
-    )
+        """
+        INSERT INTO posts (title, content, username, user_id)
+        VALUES (%s, %s, %s, %s)
+        """,
+        (title, content, username, user_id)
+        )
 
     conn.commit()
     conn.close()
@@ -649,7 +655,9 @@ def init_db():
         content TEXT,
         likes INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        image_url TEXT
+        image_url TEXT,
+        username TEXT,
+        user_id INTEGER REFERENCES users(id)
     )
     """)
     cursor.execute("""
