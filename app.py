@@ -242,6 +242,12 @@ body {
 <div class="post-card">
 <h2>{{ post.title }}</h2>
 <p>{{ post.content }}</p>
+{% if post.image %}
+<img src="{{post.image}}"
+     style="max-width:100%;
+            border-radius:10px;
+            margin-top:10px;">
+{% endif %} 
 <small>Posted on {{ post.time }}</small>
 <p>❤️ {{ post.likes }}</p>
 
@@ -270,12 +276,7 @@ body {
 {% endfor %}
 
 
-{% if post.image %}
-<img src="{{post.image}}"
-     style="max-width:100%;
-            border-radius:10px;
-            margin-top:10px;">
-{% endif %} 
+
 
 
 
