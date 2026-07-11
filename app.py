@@ -505,7 +505,7 @@ def home():
             "time": row[4].strftime("%d %b %Y • %I:%M %p")
         })
 
-    return return render_template("home.html", posts=posts)
+    return render_template("home.html", posts=posts)
 
 @app.route('/add', methods=['POST'])
 @login_required
