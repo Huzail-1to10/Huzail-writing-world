@@ -28,6 +28,12 @@
     font-size: 17px;
     }
 
+.post-card img {
+    display: block;
+    margin: 15px auto;
+    max-width: 100%;
+    border-radius: 10px;
+    }
 
 
 button{
@@ -44,7 +50,13 @@ button:hover{
 background:#ddd;
 }
 
+hr {
+    border: none;
+    border-top: 1px solid #333;
+    margin: 25px 0;
+        }
 
+    
 .action-box {
     display: inline-block;
     border: 2px solid black;
@@ -90,13 +102,16 @@ border-radius:12px;
 box-shadow:0 0 10px rgba(255,255,255,0.1);
 }
 
-
+.post-card h2 {
+    margin-bottom: 15px;
+    font-size: 24px;
+    }
 
 body {
     font-family: 'Playfair Display', serif;
 }
 
- 
+
     
     
 </style>
@@ -126,7 +141,7 @@ body {
     <input type="text"
            name="search"
            placeholder="🔍 Search posts..."
-           style="padding:10px;width:300px;border-radius:8px;">
+           style="padding:10px;width:70%;max-width:300px;border-radius:8px;">
     <button type="submit">Search</button>
     </form>
 <hr>
